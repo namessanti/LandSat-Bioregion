@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LandSat/BioRegion Map</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" href="http://cartodb.com/assets/favicon.ico" />
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,900,700' rel='stylesheet' type='text/css'>
+    <style>
+      html, body, #map {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        background: black;
+      }
+
+      #layer_selector {
+        position: absolute;
+        bottom: 38px;
+        right: 120px;
+        padding: 0;
+        background-color:black;
+        border-color: black;
+      }
+
+      #layer_selector ul {
+        padding: 0; margin: 0;
+        list-style-type: none;
+        background-color: black;
+      }
+
+      #layer_selector li {
+        border-bottom: 1px solid black;
+        padding: 10px 20px;
+        font-family: "Helvetica", Arial;
+        font-size: 12px;
+        text-align:center;
+        color: black;
+        cursor: auto;
+        border-radius: 50px;
+        background-color: white;
+      }
+
+      #layer_selector li:hover {
+        background-color: #9ecae1;
+        cursor: pointer;
+        border-radius:50px
+      }
+
+      #textbox {
+        position: absolute;
+        bottom: 120px;
+        color: rgba(255, 255, 255, .8);
+        text-align: center;
+        font: 400 16px/20px 'Merriweather';
+        left: 1210px;
+        right: 20px;
+       }
+       .title-inner {
+        position: absolute;
+        bottom: 250px;
+        right: 10px;
+        left: 1200px;
+        text-align: center;
+       }
+       .title {
+        position: relative;
+        font:900 28px/1 'Merriweather';
+        color: #fff;
+        z-index: 2;
+        letter-spacing: -1px;
+        display: inline-block;
+       }
+    </style>
+
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" />
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.ie.css" />
+    <![endif]-->
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="header">
+    <div class="title-inner">
+        <h1 class="title">LANDSAT8 FOR THE WORLD</h1>
+    </div>
+
+    <div id="textbox">
+        <p>Click around to explore recent sattelite data for various urbanized areas, watersheds, and world bio-regions. <br><strong>Look out for clouds!</strong></p>
+    </div>
+</div>
+    <div id="layer_selector" class="cartodb-infobox">
+      <ul>
+        <li id="abc" class="selected">Satellite</li>
+        <li id="efg">Bio-Regions</li>
+      </ul>
+    </div>
+
+    <!-- include cartodb.js library -->
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/cartodb.js"></script>
+
+    <script>
+      var selectedLayer;
+      // create layer selector
+      function createSelector(layers) {
+        var sql = new cartodb.SQL({ user: 'documentation' });
+
+        var $options = $('#layer_selector li');
+        $options.click(function(e) {
+          // get the area of the selected layer
+          var $li = $(e.target);
+          var layer = $li.attr('id');
+          if(selectedLayer != layer ){
+            // definitely more elegant ways to do this, but went for
+            // ease of understanding
+            if (layer == 'abc'){
+              layers.getSubLayer(0).show();
+              layers.getSubLayer(1).show();
+              layers.getSubLayer(2).show();
+              layers.getSubLayer(3).show();
+              layers.getSubLayer(4).show();
+            }
+            else if (layer == 'efg') {
+              layers.getSubLayer(0).show();
+              layers.getSubLayer(1).show();
+              layers.getSubLayer(2).show();
+              layers.getSubLayer(3).show();
+              layers.getSubLayer(4).hide();
+            }
+          }
+        });
+      }
+
+      var layerN = {};
+      function main() {
+        var map = L.map('map', {
+          zoomControl: true,
+          center: [40, -10],
+          zoom: 2
+        });
+        // get the currently selected style
+        selectedStyle = $('li.selected').attr('id');
+
+        cartodb.createLayer(map, 'http://team.cartodb.com/api/v2/viz/16c9dc56-d18f-11e4-bdd8-0e49835281d6/viz.json')
+        .addTo(map)
+        .done(function(layers) {
+          createSelector(layers);
+        })
+        .error(function(err) {
+          console.log(err);
+        });
+      }
+
+      window.onload = main;
+    </script>
+  </body>
+</html>
